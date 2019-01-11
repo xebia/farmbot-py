@@ -38,9 +38,9 @@ class FarmBot(object):
 
     def move_absolute(self, x, y, z, speed):
         self._send_command('move_absolute',
-                                  {'location': coordinate(x, y, z),
-                                   'offset': coordinate(0, 0, 0),
-                                   'speed': speed})
+                           {'location': coordinate(x, y, z),
+                            'offset': coordinate(0, 0, 0),
+                            'speed': speed})
 
     def move_relative(self, x, y, z, speed):
         self._send_command('move_relative', {'x': x, 'y': y, 'z': z, 'speed': speed})
@@ -74,8 +74,11 @@ class FarmBot(object):
 
 
 class FarmBotConnection(object):
-    def __init__(self, device_id, token):
+    def __init__(self, device_id, token, broker_url, port=1883, keepalive=60):
         self.client = mqtt.Client()
+        self.broker_url = broker_url
+        self.broker_port = port
+        self.broker_keepalive = keepalive
         self.client.username_pw_set(device_id, token)
         self.client.connected_flag = False
         self.started = False
@@ -115,7 +118,7 @@ class FarmBotConnection(object):
         if not self.started:
             print("Connecting...")
             self.client.on_connect = on_connect
-            self.client.connect("brisk-bear.rmq.cloudamqp.com", 1883, 60)
+            self.client.connect(self.broker_url, self.broker_port, self.broker_keepalive)
             self.client.loop_start()
             while not self.client.connected_flag:
                 print("Waiting to connect...")
@@ -130,7 +133,7 @@ class FarmBotConnection(object):
 
 
 if __name__ == '__main__':
-    bot = FarmBot(FarmBotConnection(my_device_id, my_token))
+    bot = FarmBot(FarmBotConnection(my_device_id, my_token, "brisk-bear.rmq.cloudamqp.com"))
     try:
         # bot.execute_sequence_id(13729)
         bot.write_pin(7, 1)

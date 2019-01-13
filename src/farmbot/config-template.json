@@ -1,0 +1,23 @@
+{
+  "broker_url": "brisk-bear.rmq.cloudamqp.com",
+  "port": 1883,
+  "keepalive": 60,
+  "device_id": "device_9999 (EDIT ME)",
+  "token": "(EDIT ME: encoded value from token.json)",
+  "peripherals": {
+    "lighting": 7,
+    "water": 8,
+    "vacuum": 9,
+    "peripheral_4": 10,
+    "peripheral_5": 12
+  },
+  "tool_bay_clearance": -100,
+  "tool_bay": {
+    "soil_sensor": {"slot": 1, "xyz": [0, 0, 0]},
+    "weeder": {"slot": 2, "xyz": [0, 0, 0]},
+    "watering_nozzle": {"slot": 3, "xyz": [0, 0, 0]},
+    "seeder": {"slot": 4, "xyz": [0, 0, 0]},
+    "seed_bin": {"slot": 5, "xyz": [0, 0, 0]},
+    "seed_tray_a1": {"slot": 6, "xyz": [0, 0, 0]}
+  }
+}

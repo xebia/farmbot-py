@@ -37,3 +37,7 @@ See the `FarmBot` class to see all implemented commands.
 ## The listener
 
 The farmbot_listener can be used to monitor all messages, you can run it independently.
+
+## Testing
+
+Run unittests with `python -m unittest discover -v -s ./test -t .` from the project root

@@ -1,5 +1,6 @@
 token.json
 config.py
+config.json
 .idea
 venv
 __pycache__

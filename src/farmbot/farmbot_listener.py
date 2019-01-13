@@ -1,6 +1,6 @@
 import json
 import paho.mqtt.client as mqtt
-from config import my_device_id, my_token
+from farmbot.config import my_device_id, my_token
 
 
 def on_connect(client, userdata, flags, rc):

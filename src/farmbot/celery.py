@@ -3,13 +3,9 @@ import uuid
 from enum import Enum
 
 
-def cmd(kind, args):
-    return {'kind': kind, 'args': args}
-
-
 def coordinate(coords):
     x, y, z = coords
-    return cmd('coordinate', {'x': x, 'y': y, 'z': z})
+    return {'kind': 'coordinate', 'args': {'x': x, 'y': y, 'z': z}}
 
 
 class CeleryNode(object):
@@ -83,16 +79,14 @@ class ExecuteSequenceID(CeleryNode):
 
 
 class WritePin(CeleryNode):
-    def __init__(self, pin_nr, value, mode=0):
-        if isinstance(pin_nr, Enum):
-            pin_nr = pin_nr.value
+    def __init__(self, pin_nr: int, value, mode=0):
+        assert type(pin_nr) is int
         super().__init__('write_pin', {'pin_number': pin_nr, 'pin_value': value, 'pin_mode': mode})
 
 
 class ReadPin(CeleryNode):
-    def __init__(self, pin_nr, mode=0):
-        if isinstance(pin_nr, Enum):
-            pin_nr = pin_nr.value
+    def __init__(self, pin_nr: int, mode=0):
+        assert type(pin_nr) is int
         super().__init__('read_pin', {'pin_number': pin_nr, 'label': "---", 'pin_mode': mode})
 
 
@@ -120,7 +114,7 @@ class RPCRequest(CeleryNode):
     def __init__(self, command: CeleryNode):
         self._uuid = str(uuid.uuid4())
         self.command = command
-        super().__init__(self, 'rpc_request', {'label': self._uuid})
+        super().__init__('rpc_request', {'label': self._uuid})
         self.add_to_body(command.as_node())
 
     def to_json(self):

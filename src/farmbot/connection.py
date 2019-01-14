@@ -17,17 +17,17 @@ class FarmBotConnection(object):
         self.started = False
 
     def send_command(self, rpc_request, wait_time=10):
-        """Creates a blocking call to the Farmbot, waiting for it to complete the command before returning."""
+        """Creates a blocking call to the Farmbot, waiting for it to complete the command before returning.
+        It blocks by reading the incoming messages from_device and waiting for an rpc_ok message with the right uuid."""
         command_done = False
 
         def on_message(client, userdata, msg):
             nonlocal command_done
             json_message = json.loads(msg.payload)
+            print(json_message)
             if json_message['kind'] == 'rpc_ok' and json_message['args']['label'] == rpc_request.uuid:
                 command_done = True
                 print(f"Command {rpc_request.uuid} done.")
-            else:
-                print(json_message)
 
         self.client.on_message = on_message
         self.start()

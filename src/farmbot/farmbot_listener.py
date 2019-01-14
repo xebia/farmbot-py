@@ -1,11 +1,12 @@
 import json
 import paho.mqtt.client as mqtt
-from farmbot.config import my_device_id, my_token
+from farmbot.config import FarmBotConfiguration
 
+cfg = FarmBotConfiguration('./config.json')
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
-    mqtt_prefix = f"bot/{my_device_id}"
+    mqtt_prefix = f"bot/{cfg.device_id}"
     client.subscribe(f"{mqtt_prefix}/status")
     client.subscribe(f"{mqtt_prefix}/logs")
     client.subscribe(f"{mqtt_prefix}/from_clients")
@@ -29,13 +30,13 @@ def on_message(client, userdata, msg):
 
 
 client = mqtt.Client()
-client.username_pw_set(my_device_id, my_token)
+client.username_pw_set(cfg.device_id, cfg.token)
 
 # Attach event handlers:
 client.on_connect = on_connect
 client.on_message = on_message
 
 # Finally, connect to the server:
-client.connect("brisk-bear.rmq.cloudamqp.com", 1883, 60)
+client.connect(cfg['broker_url'], cfg['port'], cfg['keepalive'])
 
 client.loop_forever()

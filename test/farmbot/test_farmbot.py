@@ -1,5 +1,5 @@
 import unittest
-from farmbot.farmbot import FarmBot, Axis
+from farmbot.bot import FarmBot, Axis
 from farmbot.connection import FarmBotConnection
 from farmbot.celery import *
 from farmbot.config import FarmBotConfiguration, Peripheral, ToolBay

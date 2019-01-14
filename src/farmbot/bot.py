@@ -1,6 +1,6 @@
 import time
 from enum import Enum, unique
-from farmbot.config import *
+from farmbot.config import FarmBotConfiguration, ToolBay, Peripheral
 from farmbot.connection import FarmBotConnection
 from farmbot.celery import *
 
@@ -94,14 +94,13 @@ class FarmBot(object):
         self._send_command(ExecuteSequenceID(sequence_id))
 
     def write_pin(self, pin, value):
-        if type(pin) is Peripheral:
-            pin = pin.value
+        assert type(pin) is Peripheral
+        pin = self.cfg['peripherals'][pin.value]
         self._send_command(WritePin(pin, value))
 
     def read_pin(self, pin):
-        if type(pin) is Peripheral:
-            pin = pin.value
-        self._send_command(ReadPin(pin))
+        assert type(pin) is Peripheral
+        self._send_command(ReadPin(self.cfg['peripherals'][pin.value]))
 
     def take_photo(self):
         self._send_command(TakePhoto())

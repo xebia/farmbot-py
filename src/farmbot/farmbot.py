@@ -56,10 +56,11 @@ class FarmBot(object):
         for step in water_plan:
             self.water(step[0], step[1])
 
-    def water(self, location, duration):
+    def water(self, xy, duration):
         # TODO Can we detect which tool is currently in the tool mount?
         # TODO if not current tool == watering nozzle then pick it up
-        self.safe_move(location)
+        self.pick_up_tool(ToolBay.Watering_Nozzle)
+        self.safe_move((xy[0], xy[1], 0))
         self.write_pin(Peripheral.Water, 1)
         # TODO A more robust way to space the off command due to network lag.
         time.sleep(duration)

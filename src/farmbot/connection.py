@@ -16,7 +16,7 @@ class FarmBotConnection(object):
         self.client.connected_flag = False
         self.started = False
 
-    def send_command(self, rpc_request, wait_time=10):
+    def send_command(self, rpc_request, wait_time=0):
         """Creates a blocking call to the Farmbot, waiting for it to complete the command before returning.
         It blocks by reading the incoming messages from_device and waiting for an rpc_ok message with the right uuid."""
         command_done = False
@@ -35,7 +35,9 @@ class FarmBotConnection(object):
         print(f"Sent command {rpc_request.to_json()}")
 
         counter = 0
-        while not command_done and counter <= (wait_time * 100):
+        time_out = False
+        while not command_done and not time_out:
+            time_out = (wait_time > 0) and (counter <= (wait_time * 100))
             time.sleep(0.01)
             counter += 1
 

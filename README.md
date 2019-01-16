@@ -5,6 +5,8 @@ The current implementation expects an `rpc_ok` return message with the same uuid
 
 There are also some compound commands for common sequences, like picking up a tool. All these compound commands use a safe move by first moving the tool mount to max height before moving horizontally.
 
+This code has used the examples in https://github.com/FarmBot-Labs/FarmBot-Python-Examples.
+
 ## Installation
 
 This code will not run on Python 2.

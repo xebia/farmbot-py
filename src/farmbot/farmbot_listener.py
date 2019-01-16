@@ -2,7 +2,12 @@ import json
 import paho.mqtt.client as mqtt
 from farmbot.config import FarmBotConfiguration
 
+REPORT_PING_ONCE_PER = 10
+
 cfg = FarmBotConfiguration('./config.json')
+ping_count = 0
+prev_status = ""
+
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
@@ -13,20 +18,26 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(f"{mqtt_prefix}/from_device")
 
 
-ping_count = 0
-
-
 def on_message(client, userdata, msg):
+    global prev_status
     global ping_count
     json_message = json.loads(msg.payload)
-    # msg.topic
-    if json_message["args"]["label"] != "ping":
-        print(str(msg.topic) + " " + str(json_message))
-    else:
-        if ping_count >= 10:
+    if (msg.topic.endswith('from_device') or msg.topic.endswith('from_clients')) and (json_message["args"]["label"] == "ping"):
+        if ping_count >= REPORT_PING_ONCE_PER:
             print(str(msg.topic) + " " + str(json_message))
             ping_count = 0
         ping_count += 1
+    elif str(msg.topic)[-6:] == 'status':
+        stat = json.loads(msg.payload)
+        stat['location_data']['raw_encoders'] = ''
+        stat['informational_settings']['wifi_level'] = 0
+        if prev_status != stat:
+            diffs = [i for i in range(len(prev_status)) if prev_status[i] != msg.payload[i]]
+            # print(diffs, [chr(msg.payload[i]) for i in diffs])
+            print(str(msg.topic) + " " + str(json_message))
+            prev_status = stat
+    else:
+        print(str(msg.topic) + " " + str(json_message))
 
 
 client = mqtt.Client()

@@ -66,11 +66,11 @@ class MoveRelative(CeleryNode):
 
 
 class GoHome(CeleryNode):
-    def __init__(self, axis):
+    def __init__(self, axis, speed=100):
         if isinstance(axis, Enum):
             axis = axis.value
         assert axis in ('x', 'y', 'z', 'all')
-        super().__init__('home', {'axis': axis})
+        super().__init__('find_home', {'speed': speed, 'axis': axis})
 
 
 class ExecuteSequenceID(CeleryNode):
@@ -98,6 +98,11 @@ class TakePhoto(CeleryNode):
 class DumpInfo(CeleryNode):
     def __init__(self):
         super().__init__('dump_info', {})
+
+
+class ReadStatus(CeleryNode):
+    def __init__(self):
+        super().__init__('read_status', {})
 
 
 class Calibrate(CeleryNode):

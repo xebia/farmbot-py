@@ -4,6 +4,8 @@ from farmbot.config import FarmBotConfiguration, ToolBay, Peripheral
 from farmbot.connection import FarmBotConnection
 from farmbot.celery import *
 
+TOOL_VERIFICATION_PIN = 63
+
 
 @unique
 class Axis(Enum):
@@ -59,7 +61,7 @@ class FarmBot(object):
     def water(self, xy, duration):
         # TODO Can we detect which tool is currently in the tool mount?
         # TODO if not current tool == watering nozzle then pick it up
-        self.pick_up_tool(ToolBay.Watering_Nozzle)
+        # self.pick_up_tool(ToolBay.Watering_Nozzle)
         self.safe_move((xy[0], xy[1], 0))
         self.write_pin(Peripheral.Water, 1)
         # TODO A more robust way to space the off command due to network lag.
@@ -79,10 +81,13 @@ class FarmBot(object):
             self.write_pin(Peripheral.Lighting, 1)
             self.write_pin(Peripheral.Lighting, 0)
 
+    def verify_tool(self):
+        self.read_pin(TOOL_VERIFICATION_PIN)
+
     # ------------------------------------------------------------ Basic Commands
 
-    def go_home(self, axis: Axis):
-        self._send_command(GoHome(axis.value))
+    def go_home(self, axis: Axis, speed=100):
+        self._send_command(GoHome(axis.value, speed))
 
     def move_absolute(self, coords, speed=100):
         self._send_command(MoveAbsolute(coords, speed=speed))
@@ -99,8 +104,7 @@ class FarmBot(object):
         self._send_command(WritePin(pin, value))
 
     def read_pin(self, pin):
-        assert type(pin) is Peripheral
-        self._send_command(ReadPin(self.cfg['peripherals'][pin.value]))
+        self._send_command(ReadPin(pin))
 
     def take_photo(self):
         self._send_command(TakePhoto())

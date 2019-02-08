@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: farmbot-water
+spec:
+  template:
+    spec:
+      containers:
+        - name: farmbot-water-garden
+          image: eu.gcr.io/farmbot-b787d/water-garden
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+  backoffLimit: 4

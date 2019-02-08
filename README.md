@@ -51,3 +51,17 @@ The farmbot_listener can be used to monitor all messages, you can run it indepen
 ## Testing
 
 Run unittests with `python -m unittest discover -v -s ./test -t .` from the project root
+
+## Docker and Kubernetes
+
+### Build the docker image
+
+```
+docker build --rm -t eu.gcr.io/farmbot-b787d/water-garden:latest .
+```
+
+### Test the docker image
+
+```
+docker run --rm -it eu.gcr.io/farmbot-b787d/water-garden
+```

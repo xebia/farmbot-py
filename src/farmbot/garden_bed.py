@@ -49,7 +49,7 @@ class GardenBed(object):
         self.bot.pick_up_tool(ToolBay.Watering_Nozzle)
         for plot in plots:
             self.bot.water(plot, 4)
-        self.bot.return_tool(ToolBay.Seeder)
+        self.bot.return_tool(ToolBay.Watering_Nozzle)
 
 
 cfg = FarmBotConfiguration('./config.json')
@@ -59,6 +59,8 @@ bed = GardenBed(bot, bedconfig)
 try:
     # bed.seed_all(bedconfig.plots)
     bed.water_all(bedconfig.plots)
+    # bot.return_tool(ToolBay.Watering_Nozzle)
+
 finally:
     bot.stop()
 

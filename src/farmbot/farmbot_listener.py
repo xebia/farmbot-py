@@ -23,12 +23,15 @@ def on_message(client, userdata, msg):
     global ping_count
     json_message = json.loads(msg.payload)
     if (msg.topic.endswith('from_device') or msg.topic.endswith('from_clients')) and (json_message["args"]["label"] == "ping"):
+        # Only print a ping every once in a while
         if ping_count >= REPORT_PING_ONCE_PER:
             print(str(msg.topic) + " " + str(json_message))
             ping_count = 0
         ping_count += 1
     elif str(msg.topic)[-6:] == 'status':
+        # Only report the status if it changes
         stat = json.loads(msg.payload)
+        # Fiddly values that change all the time without much effect.
         stat['location_data']['raw_encoders'] = ''
         stat['informational_settings']['wifi_level'] = 0
         if prev_status != stat:

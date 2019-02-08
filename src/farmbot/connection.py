@@ -1,3 +1,4 @@
+import re
 import json
 import time
 from farmbot.config import FarmBotConfiguration
@@ -6,6 +7,7 @@ from paho.mqtt import client as mqtt
 
 DEFAULT_MQTT_PORT = 1883
 DEFAULT_MQTT_KEEP_ALIVE = 60
+REGEX_TOOL_VERIFICATION = re.compile("^Tool Verification value is (\d+)")
 
 
 class FarmBotConnection(object):
@@ -15,6 +17,11 @@ class FarmBotConnection(object):
         self.client.username_pw_set(self.cfg.device_id, self.cfg.token)
         self.client.connected_flag = False
         self.started = False
+        self._tool_mounted = None
+
+    @property
+    def tool_mounted(self):
+        return self._tool_mounted
 
     def send_command(self, rpc_request, wait_time=0):
         """Creates a blocking call to the Farmbot, waiting for it to complete the command before returning.
@@ -25,9 +32,17 @@ class FarmBotConnection(object):
             nonlocal command_done
             json_message = json.loads(msg.payload)
             print(json_message)
-            if json_message['kind'] == 'rpc_ok' and json_message['args']['label'] == rpc_request.uuid:
-                command_done = True
-                print(f"Command {rpc_request.uuid} done.")
+            if msg.topic[-11:] == 'from_device':
+                # Check for an OK message so we can continue with the next command.
+                if json_message['kind'] == 'rpc_ok' and json_message['args']['label'] == rpc_request.uuid:
+                    command_done = True
+                    print(f"Command {rpc_request.uuid} done.")
+            elif msg.topic[-4:] == 'logs':
+                # Parse the logs to figure out what the tool status is.
+                tool_message_match = REGEX_TOOL_VERIFICATION.search(json_message['message'])
+                if (json_message['type'] == 'success') and tool_message_match:
+                    # 0: tool mounted, 1: tool not mounted
+                    self._tool_mounted = int(tool_message_match.group(1)) == 0
 
         self.client.on_message = on_message
         self.start()
@@ -47,6 +62,7 @@ class FarmBotConnection(object):
                 client.connected_flag = True
                 print(f"Connected to {self.cfg.device_id}!")
                 client.subscribe(f"bot/{self.cfg.device_id}/from_device")
+                client.subscribe(f"bot/{self.cfg.device_id}/logs")
             else:
                 print("Bad connection Returned code=", rc)
 

@@ -48,7 +48,8 @@ class GardenBed(object):
     def water_all(self, plots):
         self.bot.pick_up_tool(ToolBay.Watering_Nozzle)
         for plot in plots:
-            self.bot.water(plot, 6)
+            self.bot.water(plot, 4)
+        self.bot.return_tool(ToolBay.Seeder)
 
 
 cfg = FarmBotConfiguration('./config.json')

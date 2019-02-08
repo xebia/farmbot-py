@@ -14,11 +14,8 @@ class GardenBedConfig(object):
         return self._data['bed_height']
 
     @property
-    def plots(self, include_seeder_height=True):
-        if include_seeder_height:
-            return [(p[0], p[1], self._data['bed_height']) for p in self._data['plots']]
-        else:
-            return self.cfg['plots']
+    def plots(self):
+        return self._data['plots']
 
 
 class GardenBed(object):
@@ -31,8 +28,8 @@ class GardenBed(object):
             self.water(plot)
 
     def water(self, plot):
-        self.bot.pick_up_tool(ToolBay.Watering_Nozzle)
-        self.bot.water(plot, 6)
+        for coord in plot['coords']:
+            self.bot.water(coord, int(plot['water_time']))
 
     def seed(self, plot):
         self.bot.pick_up_tool(ToolBay.Seeder)
@@ -48,7 +45,7 @@ class GardenBed(object):
     def water_all(self, plots):
         self.bot.pick_up_tool(ToolBay.Watering_Nozzle)
         for plot in plots:
-            self.bot.water(plot, 4)
+            self.water(plot)
         self.bot.return_tool(ToolBay.Watering_Nozzle)
 
 
@@ -57,19 +54,9 @@ bot = FarmBot(cfg, FarmBotConnection(cfg))
 bedconfig = GardenBedConfig('./garden_bed.json')
 bed = GardenBed(bot, bedconfig)
 try:
-    # bed.seed_all(bedconfig.plots)
     bed.water_all(bedconfig.plots)
-    # bot.return_tool(ToolBay.Watering_Nozzle)
-
+    bot.go_home(Axis.z)
+    bot.go_home(Axis.x)
 finally:
     bot.stop()
-
-    # bot.calibrate(Axis.all)
-    # bot.pick_up_tool(ToolBay.Watering_Nozzle)
-    # bot.water((1140, 110), 3)
-    # bot.water((820, 520), 3)
-    # bot.verify_tool()
-    # bot.dump_info()
-    # bot.read_stats()
-    # bot.return_tool(ToolBay.Watering_Nozzle)
 

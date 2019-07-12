@@ -5,6 +5,8 @@ from farmbot.config import FarmBotConfiguration
 REPORT_PING_ONCE_PER = 10
 
 cfg = FarmBotConfiguration('./config.json')
+
+print(f"Opening connection to {cfg['broker_url']}, {cfg['port']}, {cfg['keepalive']}")
 ping_count = 0
 prev_status = ""
 

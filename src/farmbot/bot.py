@@ -35,8 +35,11 @@ class FarmBot(object):
 
     def blink_lights(self, nr_times):
         for i in range(nr_times):
-            self.write_pin(Peripheral.Lighting, 1)
-            self.write_pin(Peripheral.Lighting, 0)
+            self.set_lights(True)
+            self.set_lights(False)
+
+    def set_lights(self, on_off):
+        self.write_pin(Peripheral.Lighting, 1 if on_off else 0)
 
     def pick_up_tool(self, tool: ToolBay):
         """Safe move to tool and move out of tool bay."""
@@ -68,15 +71,18 @@ class FarmBot(object):
         # TODO This does not work yet. No idea how to get a pin value back.
         self.read_pin(TOOL_VERIFICATION_PIN)
 
-    def water(self, xy, duration):
+    def water_on(self, duration):
+        self.write_pin(Peripheral.Water, 1)
+        # TODO A more robust way to space the off command due to network lag. This works well, though...
+        time.sleep(duration)
+        self.write_pin(Peripheral.Water, 0)
+
+    def water(self, xy, duration, z=0):
         # TODO Can we detect which tool is currently in the tool mount?
         # TODO if not current tool == watering nozzle then pick it up
         # self.pick_up_tool(ToolBay.Watering_Nozzle)
-        self.safe_move((xy[0], xy[1], 0))
-        self.write_pin(Peripheral.Water, 1)
-        # TODO A more robust way to space the off command due to network lag.
-        time.sleep(duration)
-        self.write_pin(Peripheral.Water, 0)
+        self.safe_move((xy[0], xy[1], z))
+        self.water_on(duration)
 
     def water_multiple(self, water_plan):
         for step in water_plan:
@@ -94,7 +100,11 @@ class FarmBot(object):
         self._send_command(ExecuteSequenceID(sequence_id))
 
     def go_home(self, axis: Axis, speed=100):
-        self._send_command(GoHome(axis.value, speed))
+        if axis == Axis.all:
+            self.go_home(Axis.z, speed)
+            self.move_absolute((0, 0, 0), speed)
+        else:
+            self._send_command(GoHome(axis.value, speed))
 
     def move_absolute(self, coords, speed=100):
         self._send_command(MoveAbsolute(coords, speed=speed))

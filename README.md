@@ -57,11 +57,23 @@ Run unittests with `python -m unittest discover -v -s ./test -t .` from the proj
 ### Build the docker image
 
 ```
-docker build --rm -t eu.gcr.io/farmbot-b787d/water-garden:latest .
+docker build --rm -t eu.gcr.io/farmbot-b787d/water-garden:0.1.0 .
 ```
 
 ### Test the docker image
 
 ```
 docker run --rm -it eu.gcr.io/farmbot-b787d/water-garden
+```
+
+### Update the kubernetes cronjob
+
+Before you push images or update kubernetes resources you should connect to the cluster listed on this page: https://console.cloud.google.com/kubernetes/list?project=farmbot-b787d
+If you don't have access contact Dennis Meelis (dmeelis@xebia.com).
+When you update docker container versions don't forget to update the `k8s/farmbot-water-garden-cron-job.yaml` resource with the new container tag.
+
+```
+docker push eu.gcr.io/farmbot-b787d/water-garden:0.1.0
+cd k8s
+kubectl apply -f farmbot-water-garden-cron-job.yaml
 ```

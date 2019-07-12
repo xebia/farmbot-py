@@ -10,6 +10,6 @@ spec:
         spec:
           containers:
             - name: farmbot-water-garden
-              image: eu.gcr.io/farmbot-b787d/water-garden
+              image: eu.gcr.io/farmbot-b787d/water-garden:0.1.0
               imagePullPolicy: IfNotPresent
           restartPolicy: Never

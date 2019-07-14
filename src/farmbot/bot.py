@@ -1,10 +1,13 @@
 import time
+import logging
 from enum import Enum, unique
-from farmbot.config import FarmBotConfiguration, ToolBay, Peripheral
+from farmbot.config import FarmBotConfiguration, ToolBay, Peripheral, Zone
 from farmbot.connection import FarmBotConnection
 from farmbot.celery import *
 
 TOOL_VERIFICATION_PIN = 63
+
+logger = logging.getLogger(__name__)
 
 
 @unique
@@ -15,8 +18,8 @@ class Axis(Enum):
     all = 'all'
 
 
-def max_height(coord):
-    return coord[0], coord[1], 0
+def max_height(xyz):
+    return xyz[0], xyz[1], 0
 
 
 class FarmBot(object):
@@ -53,6 +56,12 @@ class FarmBot(object):
         self.write_pin(Peripheral.Vacuum, 0)
         self.go_home(Axis.z)
 
+    def reset(self):
+        self.write_pin(Peripheral.Water, 0)
+        self.write_pin(Peripheral.Vacuum, 0)
+        self.set_lights(False)
+        self.go_home(Axis.all)
+
     def return_tool(self, tool):
         """Safe move to clearance location, and then push the tool into the tool bay."""
         x, y, z = self.cfg.location_of(tool)
@@ -77,16 +86,35 @@ class FarmBot(object):
         time.sleep(duration)
         self.write_pin(Peripheral.Water, 0)
 
-    def water(self, xy, duration, z=0):
+    def water(self, xy, duration, z=0, safe_move=True):
         # TODO Can we detect which tool is currently in the tool mount?
         # TODO if not current tool == watering nozzle then pick it up
         # self.pick_up_tool(ToolBay.Watering_Nozzle)
-        self.safe_move((xy[0], xy[1], z))
+        logger.debug(f"Watering ({xy[0]}, {xy[1]}, {z})  for {duration} seconds.")
+        if safe_move:
+            self.safe_move((xy[0], xy[1], z))
+        else:
+            self.move_absolute((xy[0], xy[1], z))
         self.water_on(duration)
 
     def water_multiple(self, water_plan):
         for step in water_plan:
             self.water(step[0], step[1])
+
+    def water_zone(self, zone: Zone, height, step_distance=100, water_duration=1):
+        self.safe_move((zone.x_min, zone.y_min, height))
+        # Preload the watering hose
+        self.water_on(2)
+        forward_direction = True
+        for x in range(zone.x_min, zone.x_max, step_distance):
+            if forward_direction:
+                y_from, y_to = zone.y_min, zone.y_max
+            else:
+                y_from, y_to = zone.y_max, zone.y_min
+            y_delta = step_distance if forward_direction else -step_distance
+            for y in range(y_from, y_to, y_delta):
+                self.water((x, y), water_duration, z=height, safe_move=False)
+            forward_direction = not forward_direction
 
     # ------------------------------------------------------------ Basic Commands (in alphabetic order)
 
@@ -121,10 +149,10 @@ class FarmBot(object):
     def take_photo(self):
         self._send_command(TakePhoto())
 
-    def write_pin(self, pin, value):
+    def write_pin(self, pin: Peripheral, value):
         assert type(pin) is Peripheral
-        pin = self.cfg['peripherals'][pin.value]
-        self._send_command(WritePin(pin, value))
+        pin_nr = self.cfg['peripherals'][pin.value]
+        self._send_command(WritePin(int(pin_nr), value))
 
 
 if __name__ == '__main__':

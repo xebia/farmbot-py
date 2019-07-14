@@ -2,7 +2,7 @@ import json
 import requests
 from farmbot.config import FarmBotConfiguration
 from pprint import pprint
-from farmbot.model import Sensor
+from farmbot.web.model import Sensor
 
 
 class WebAPI(object):
@@ -102,6 +102,6 @@ if __name__ == '__main__':
         sensor.add_readings(readings)
     print("\nSensor objects\n")
     for sensor in sensors:
-        pprint(sensor)
+        pprint(str(sensor))
 
 

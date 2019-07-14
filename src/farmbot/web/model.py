@@ -21,6 +21,9 @@ class SensorReading(object):
     def __lt__(self, other):
         return self.created < other.created
 
+    def __str__(self):
+        return f"SensorReading({self._data})"
+
 
 class Sensor(object):
     def __init__(self, data):
@@ -46,3 +49,6 @@ class Sensor(object):
     def add_readings(self, readings):
         self._readings.extend([SensorReading(reading) for reading in readings if reading['pin'] == self.pin])
         self._readings = sorted(self._readings)
+
+    def __str__(self):
+        return f"Sensor({self._data}, {[str(reading) for reading in self._readings]})"

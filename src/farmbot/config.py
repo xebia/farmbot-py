@@ -2,12 +2,15 @@ import json
 from enum import Enum, unique
 
 DEVICE_ID = 'device_id'
+PERIPHERALS = 'peripherals'
 PLOTS = 'plots'
-SEEDER_PLANT_HEIGHT = 'seeder_plant_height'
 TOKEN = 'token'
-TOOL_BAY = 'tool_bay'
+TOOL_BAYS = 'tool_bays'
 TOOL_BAY_CLEARANCE = 'tool_bay_clearance'
 XYZ = 'xyz'
+ZONES = 'zones'
+
+# SEEDER_PLANT_HEIGHT = 'seeder_plant_height'
 
 
 @unique
@@ -30,10 +33,36 @@ class ToolBay(Enum):
     SeedTrayD4 = 'seed_tray_d4'
 
 
+class Zone(object):
+    def __init__(self, name, coordinates):
+        self.name = name
+        self.coordinates = coordinates
+
+    @property
+    def x_min(self):
+        return self.coordinates["x"][0]
+
+    @property
+    def x_max(self):
+        return self.coordinates["x"][1]
+
+    @property
+    def y_min(self):
+        return self.coordinates["y"][0]
+
+    @property
+    def y_max(self):
+        return self.coordinates["y"][1]
+
+
 class FarmBotConfiguration(object):
     def __init__(self, config_file_name):
         with open(config_file_name, 'r') as f:
             self.cfg = json.load(f)
+        self.zones = dict()
+        for zone_id in self.cfg[ZONES]:
+            zone = self.cfg[ZONES][zone_id]
+            self.zones[zone_id] = Zone(zone_id, zone)
 
     def __getitem__(self, key):
         return self.cfg[key]
@@ -56,5 +85,8 @@ class FarmBotConfiguration(object):
     def location_of(self, item: ToolBay):
         if isinstance(item, Enum):
             item = item.value
-        return self.cfg[TOOL_BAY][item][XYZ]
+        return self.cfg[TOOL_BAYS][item][XYZ]
+
+    def pin_number_of(self, peripheral: Peripheral):
+        return self.cfg[PERIPHERALS][peripheral.value]
 

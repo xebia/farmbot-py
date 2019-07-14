@@ -1,7 +1,7 @@
 import json
 import uuid
 from enum import Enum
-
+from farmbot.config import Peripheral
 
 def coordinate(coords):
     x, y, z = coords
@@ -80,7 +80,7 @@ class ExecuteSequenceID(CeleryNode):
 
 class WritePin(CeleryNode):
     def __init__(self, pin_nr: int, value, mode=0):
-        assert type(pin_nr) is int
+        assert isinstance(pin_nr, int), f"pin_nr is of type({type(pin_nr)})"
         super().__init__('write_pin', {'pin_number': pin_nr, 'pin_value': value, 'pin_mode': mode})
 
 

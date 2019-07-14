@@ -1,45 +1,21 @@
 import unittest
-from farmbot.bot import FarmBot, Axis
-from farmbot.connection import FarmBotConnection
+from farmbot.bot import FarmBot, Axis, max_height
 from farmbot.celery import *
 from farmbot.config import FarmBotConfiguration, Peripheral, ToolBay
 
-
-class MockFarmBotConnection(FarmBotConnection):
-    def __init__(self, config):
-        self.cfg = config
-        self.expected_commands = list()
-
-    def add_expected_command(self, command):
-        self.expected_commands.append(RPCRequest(command))
-
-    @property
-    def commands_empty(self):
-        return len(self.expected_commands) == 0
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def send_command(self, rpc_request, wait_time=10):
-        assert len(self.expected_commands) > 0, f"Did not expect command {rpc_request}"
-        assert self.expected_commands[0].is_same(
-            rpc_request), f"\nExpected: {self.expected_commands[0]}\nActual:   {rpc_request}"
-        self.expected_commands.pop(0)
+from farmbottest.mockconnection import MockReplayFarmBotConnection
 
 
 class TestFarmbot(unittest.TestCase):
     def setUp(self):
         self.cfg = FarmBotConfiguration('./config.json')
-        self.conn = MockFarmBotConnection(self.cfg)
+        self.conn = MockReplayFarmBotConnection(self.cfg)
         self.bot = FarmBot(self.cfg, self.conn)
 
     def test_blink_lights(self):
         # Note that the WritePin is CeleryScript and does not (should not) know the Peripheral type
-        self.conn.add_expected_command(WritePin(Peripheral.Lighting, 1))
-        self.conn.add_expected_command(WritePin(Peripheral.Lighting, 0))
+        self.conn.add_expected_command(WritePin(self.cfg.pin_number_of(Peripheral.Lighting), 1))
+        self.conn.add_expected_command(WritePin(self.cfg.pin_number_of(Peripheral.Lighting), 0))
 
         self.bot.write_pin(Peripheral.Lighting, 1)
         self.bot.write_pin(Peripheral.Lighting, 0)
@@ -56,18 +32,17 @@ class TestFarmbot(unittest.TestCase):
         self.assertTrue(self.conn.commands_empty)
 
     def test_plant_seed(self):
+        seed_bin_location = self.cfg.location_of(ToolBay.SeedBin)
+        target_location = (100, 100, -104)
+
         self.conn.add_expected_command(GoHome(Axis.z))
-        self.conn.add_expected_command(MoveAbsolute((4, 4, 0)))
-        self.conn.add_expected_command(MoveAbsolute((4, 4, 4)))
-        self.conn.add_expected_command(MoveRelative(x=-100))
+        self.conn.add_expected_command(MoveAbsolute(max_height(seed_bin_location)))
+        self.conn.add_expected_command(MoveAbsolute(seed_bin_location))
+        self.conn.add_expected_command(WritePin(self.cfg.pin_number_of(Peripheral.Vacuum), 1))
         self.conn.add_expected_command(GoHome(Axis.z))
-        self.conn.add_expected_command(MoveAbsolute((1, 2, 0)))
-        self.conn.add_expected_command(MoveAbsolute((1, 2, 3)))
-        self.conn.add_expected_command(WritePin(Peripheral.Vacuum, 1))
-        self.conn.add_expected_command(GoHome(Axis.z))
-        self.conn.add_expected_command(MoveAbsolute((100, 100, 0)))
-        self.conn.add_expected_command(MoveAbsolute((100, 100, -104)))
-        self.conn.add_expected_command(WritePin(Peripheral.Vacuum, 0))
+        self.conn.add_expected_command(MoveAbsolute(max_height(target_location)))
+        self.conn.add_expected_command(MoveAbsolute(target_location))
+        self.conn.add_expected_command(WritePin(self.cfg.pin_number_of(Peripheral.Vacuum), 0))
         self.conn.add_expected_command(GoHome(Axis.z))
 
         self.bot.plant_seed(ToolBay.SeedBin, (100, 100, -104))
@@ -96,9 +71,9 @@ class TestFarmbot(unittest.TestCase):
         self.assertTrue(self.conn.commands_empty)
 
     def test_read_pin(self):
-        self.conn.add_expected_command(ReadPin(Peripheral.Peripheral_4))
+        self.conn.add_expected_command(ReadPin(self.cfg.pin_number_of(Peripheral.Peripheral_4)))
 
-        self.bot.read_pin(Peripheral.Peripheral_4)
+        self.bot.read_pin(self.cfg.pin_number_of(Peripheral.Peripheral_4))
 
         self.assertTrue(self.conn.commands_empty)
 

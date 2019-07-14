@@ -12,4 +12,4 @@ class TestFarmbot(unittest.TestCase):
         self.bot = FarmBot(self.cfg, self.conn)
 
     def test_water_zone(self):
-        self.bot.water_zone(self.cfg.zones['6'], -200, step_distance=50, water_duration=0)
+        self.bot.water_zone(self.cfg.zones['6'], -200, step_distance=100, water_duration=0)

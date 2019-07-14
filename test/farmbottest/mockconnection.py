@@ -1,6 +1,9 @@
 from farmbot.config import FarmBotConfiguration
 from farmbot.connection import FarmBotConnection
 from farmbot.celery import RPCRequest
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MockFarmBotConnection(FarmBotConnection):
@@ -12,7 +15,7 @@ class MockFarmBotConnection(FarmBotConnection):
         return self._tool_mounted
 
     def send_command(self, rpc_request, wait_time=0):
-        print(f"Sent command {rpc_request.to_json()}")
+        logger.debug(f"Sent command {rpc_request.to_json()}")
 
     def start(self):
         pass

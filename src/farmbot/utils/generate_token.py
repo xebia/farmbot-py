@@ -12,14 +12,10 @@ TOKEN_URL = "https://my.farm.bot/api/tokens"
 
 cfg = FarmBotConfiguration('./config.json')
 farmbot.log.configure_logger(cfg)
-
-
 logger = logging.getLogger(__name__)
-
 
 # Get an API token using email / password.
 # To generate the token, we POST JSON to `api/tokens`.
-
 data = {'user': {'email': cfg[USER_EMAIL_KEY], 'password': cfg[USER_PASSWORD_KEY]}}
 result = requests.post(TOKEN_URL,
                        data=json.dumps(data),

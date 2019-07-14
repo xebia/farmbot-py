@@ -76,9 +76,10 @@ class FarmBot(object):
         self.move_absolute(max_height(coords))
         self.move_absolute(coords)
 
-    def verify_tool(self):
-        # TODO This does not work yet. No idea how to get a pin value back.
+    def tool_mounted(self):
+        # TODO There is a hack in the connection because the result comes back later in the logs AFTER the RPC_OK...
         self.read_pin(TOOL_VERIFICATION_PIN)
+        return self.connection.tool_mounted
 
     def water_on(self, duration):
         self.write_pin(Peripheral.Water, 1)
@@ -155,9 +156,13 @@ class FarmBot(object):
         self._send_command(WritePin(int(pin_nr), value))
 
 
+def create_farmbot(config_file_name):
+    configuration = FarmBotConfiguration(config_file_name)
+    return FarmBot(configuration, FarmBotConnection(configuration))
+
+
 if __name__ == '__main__':
-    cfg = FarmBotConfiguration('./config.json')
-    bot = FarmBot(cfg, FarmBotConnection(cfg))
+    bot = create_farmbot('./config.json')
     try:
         print("Hello Farmbot! Blinking the lights!")
         bot.blink_lights(3)

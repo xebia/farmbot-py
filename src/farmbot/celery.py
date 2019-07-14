@@ -1,7 +1,7 @@
 import json
 import uuid
 from enum import Enum
-from farmbot.config import Peripheral
+
 
 def coordinate(coords):
     x, y, z = coords

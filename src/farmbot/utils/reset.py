@@ -1,11 +1,6 @@
-from farmbot.bot import FarmBot
-from farmbot.connection import FarmBotConnection
-from farmbot.config import FarmBotConfiguration
-from farmbot.log import configure_logger
+from farmbot.bot import create_farmbot
 
-cfg = FarmBotConfiguration('./config.json')
-bot = FarmBot(cfg, FarmBotConnection(cfg))
-configure_logger(cfg)
+bot = create_farmbot('./config.json')
 try:
     bot.reset()
 finally:

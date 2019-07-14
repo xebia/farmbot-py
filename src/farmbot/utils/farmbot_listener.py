@@ -12,7 +12,7 @@ configure_logger(cfg)
 
 logger = logging.getLogger(__name__)
 
-logger.info(f"Opening connection to {cfg['broker_url']}, {cfg['port']}, {cfg['keepalive']}")
+logger.info(f"Only printing pings once every {REPORT_PING_ONCE_PER} times.")
 
 ping_count = 0
 prev_status = ""
@@ -38,9 +38,9 @@ def on_message(client, userdata, msg):
             ping_count = 0
         ping_count += 1
     elif str(msg.topic)[-6:] == 'status':
-        # Only report the status if it changes
+        # Only report the status if it changes. It gets sent really often.
         stat = json.loads(msg.payload)
-        # Fiddly values that change all the time without much effect.
+        # Ignore changes in fiddly values that change all the time without much effect.
         stat['location_data']['raw_encoders'] = ''
         stat['informational_settings']['wifi_level'] = 0
         if prev_status != stat:
@@ -60,6 +60,7 @@ mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 
 # Finally, connect to the server:
+logger.info(f"Opening connection to URL: {cfg['broker_url']}, Port: {cfg['port']}, Keep-Alive: {cfg['keepalive']} seconds.")
 mqtt_client.connect(cfg['broker_url'], cfg['port'], cfg['keepalive'])
 
 mqtt_client.loop_forever()

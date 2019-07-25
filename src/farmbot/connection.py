@@ -8,7 +8,7 @@ from paho.mqtt import client as mqtt
 
 DEFAULT_MQTT_PORT = 1883
 DEFAULT_MQTT_KEEP_ALIVE = 60
-REGEX_TOOL_VERIFICATION = re.compile("^Tool Verification value is (\d+)")
+REGEX_TOOL_VERIFICATION = re.compile(r"^Tool Verification value is (\d+)")
 TOOL_PIN_NUMBER = 63
 
 logger = logging.getLogger(__name__)

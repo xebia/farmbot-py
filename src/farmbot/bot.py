@@ -34,22 +34,26 @@ class FarmBot(object):
     def stop(self):
         self.connection.stop()
 
+    # ------------------------------------------------------------ Queries
+
+    def tool_mounted(self):
+        # TODO There is a hack in the connection because the result comes back later in the logs AFTER the RPC_OK...
+        self.read_pin(TOOL_VERIFICATION_PIN)
+        return self.connection.tool_mounted
+
     # ------------------------------------------------------------ Compound Commands
 
-    def blink_lights(self, nr_times):
+    def blink_lights(self, nr_times: int):
         for i in range(nr_times):
             self.set_lights(True)
             self.set_lights(False)
-
-    def set_lights(self, on_off):
-        self.write_pin(Peripheral.Lighting, 1 if on_off else 0)
 
     def pick_up_tool(self, tool: ToolBay):
         """Safe move to tool and move out of tool bay."""
         self.safe_move(self.cfg.location_of(tool))
         self.move_relative(x=self.cfg.tool_bay_clearance)
 
-    def plant_seed(self, seed_source, destination):
+    def plant_seed(self, seed_source: ToolBay, destination):
         self.safe_move(self.cfg.location_of(seed_source))
         self.write_pin(Peripheral.Vacuum, 1)
         self.safe_move(destination)
@@ -75,17 +79,6 @@ class FarmBot(object):
         self.go_home(Axis.z)
         self.move_absolute(max_height(coords))
         self.move_absolute(coords)
-
-    def tool_mounted(self):
-        # TODO There is a hack in the connection because the result comes back later in the logs AFTER the RPC_OK...
-        self.read_pin(TOOL_VERIFICATION_PIN)
-        return self.connection.tool_mounted
-
-    def water_on(self, duration):
-        self.write_pin(Peripheral.Water, 1)
-        # TODO A more robust way to space the off command due to network lag. This works well, though...
-        time.sleep(duration)
-        self.write_pin(Peripheral.Water, 0)
 
     def water(self, xy, duration, z=0, safe_move=True):
         # TODO Can we detect which tool is currently in the tool mount?
@@ -147,8 +140,17 @@ class FarmBot(object):
     def read_status(self):
         self._send_command(ReadStatus())
 
+    def set_lights(self, on_off):
+        self.write_pin(Peripheral.Lighting, 1 if on_off else 0)
+
     def take_photo(self):
         self._send_command(TakePhoto())
+
+    def water_on(self, duration):
+        self.write_pin(Peripheral.Water, 1)
+        # TODO A more robust way to space the off command due to network lag. This works well, though...
+        time.sleep(duration)
+        self.write_pin(Peripheral.Water, 0)
 
     def write_pin(self, pin: Peripheral, value):
         assert type(pin) is Peripheral

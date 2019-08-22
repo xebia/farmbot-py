@@ -1,6 +1,5 @@
 import unittest
-from farmbot.bot import FarmBot, Axis
-from farmbot.connection import FarmBotConnection
+from farmbot.bot import FarmBot, Axis, max_height
 from farmbot.celery import *
 from farmbot.config import FarmBotConfiguration, Peripheral, ToolBay
 

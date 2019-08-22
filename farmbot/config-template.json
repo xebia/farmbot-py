@@ -1,9 +1,12 @@
 {
-  "broker_url": "brisk-bear.rmq.cloudamqp.com",
+  "log_level": "DEBUG",
+  "user_email": "",
+  "user_password": "",
+  "broker_url": "clever-octopus.rmq.cloudamqp.com",
   "port": 1883,
   "keepalive": 60,
-  "device_id": "device_9999 (EDIT ME)",
-  "token": "(EDIT ME: encoded value from token.json)",
+  "device_id": "device_xxx",
+  "token": "",
   "peripherals": {
     "lighting": 7,
     "water": 8,
@@ -12,12 +15,23 @@
     "peripheral_5": 12
   },
   "tool_bay_clearance": -100,
-  "tool_bay": {
-    "soil_sensor": {"slot": 1, "xyz": [0, 0, 0]},
-    "weeder": {"slot": 2, "xyz": [0, 0, 0]},
-    "watering_nozzle": {"slot": 3, "xyz": [0, 0, 0]},
-    "seeder": {"slot": 4, "xyz": [0, 0, 0]},
-    "seed_bin": {"slot": 5, "xyz": [0, 0, 0]},
-    "seed_tray_a1": {"slot": 6, "xyz": [0, 0, 0]}
+  "tool_bays": {
+    "soil_sensor": {"slot": 1, "xyz": [2734.6, 375.8, -332]},
+    "weeder": {"slot": 2, "xyz": [2739.6, 475.8, -333]},
+    "watering_nozzle": {"slot": 3, "xyz": [2730, 581, -333]},
+    "seeder": {"slot": 4, "xyz": [2735, 692, -331]},
+    "seed_bin": {"slot": 5, "xyz": [2754.4, 790, -276.12]},
+    "seed_tray_a1": {"slot": 6, "xyz": [2718.2, 874, -265]},
+    "seed_tray_d4": {"slot": 6, "xyz": [2755.2, 913, -265]}
+  },
+  "zones": {
+    "1": {"x": [2160, 2630], "y": [700, 1250]},
+    "2": {"x": [2160, 2630], "y": [0, 570]},
+    "3": {"x": [1440, 2040], "y": [700, 1250]},
+    "4": {"x": [1440, 2040], "y": [0, 570]},
+    "5": {"x": [720, 1320], "y": [700, 1250]},
+    "6": {"x": [720, 1320], "y": [0, 570]},
+    "7": {"x": [70, 590], "y": [700, 1190]},
+    "8": {"x": [70, 590], "y": [80, 570]}
   }
 }

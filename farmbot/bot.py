@@ -1,3 +1,4 @@
+import logging
 import time
 from enum import Enum, unique
 from farmbot.config import FarmBotConfiguration, ToolBay, Peripheral, Zone

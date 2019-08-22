@@ -1,5 +1,6 @@
 import re
 import json
+import logging
 import time
 from farmbot.config import FarmBotConfiguration
 

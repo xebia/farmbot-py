@@ -10,12 +10,37 @@ def coordinate(coords):
 
 class CeleryNode(object):
     def __init__(self, kind, args, body=None, comment=None):
-        self.kind = kind
-        self.args = args
-        self.body = list()
-        if body:
-            self.body.append(body)
-        self.comment = comment
+        self._node = dict()
+        self._node['kind'] = kind
+        self._node['args'] = args
+        self.add_to_body(body)
+        if comment:
+            self._node['comment'] = comment
+
+    def add_to_body(self, item):
+        if item:
+            if not self.body:
+                self._node['body'] = list()
+            self._node['body'].append(item)
+
+    def as_node(self):
+        return self._node
+
+    @property
+    def kind(self):
+        return self._node['kind']
+
+    @property
+    def args(self):
+        return self._node['args']
+
+    @property
+    def body(self):
+        return self._node.get('body', None)
+
+    @property
+    def comment(self):
+        return self._node.get('comment', None)
 
     def __eq__(self, other):
         """Don't care about the comments."""
@@ -90,13 +115,25 @@ class RPCRequest(CeleryNode):
     """Translates a FarmBot command to the corresponding CeleryScript RPC request."""
 
     def __init__(self, command: CeleryNode):
-        self.uuid = str(uuid.uuid4())
+        self._uuid = str(uuid.uuid4())
         self.command = command
-        super().__init__('rpc_request', {'label': self.uuid})
-        self.body.append(command)
+        super().__init__('rpc_request', {'label': self._uuid})
+        self.add_to_body(command.as_node())
 
     def to_json(self):
-        return json.dumps(self)
+        return json.dumps(self.as_node())
+
+    @property
+    def uuid(self):
+        return self._uuid
+
+    @property
+    def kind(self):
+        return self.command.kind
+
+    @property
+    def args(self):
+        return self.command.args
 
     def __copy__(self):
         return RPCRequest(self.command)

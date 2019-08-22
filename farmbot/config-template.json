@@ -1,8 +1,5 @@
 {
-  "log_level": "INFO",
-  "user_email": "<your@email.com>",
-  "user_password": "<your password>",
-  "broker_url": "(EDIT ME: read url from from token)",
+  "broker_url": "brisk-bear.rmq.cloudamqp.com",
   "port": 1883,
   "keepalive": 60,
   "device_id": "device_9999 (EDIT ME)",
@@ -22,8 +19,5 @@
     "seeder": {"slot": 4, "xyz": [0, 0, 0]},
     "seed_bin": {"slot": 5, "xyz": [0, 0, 0]},
     "seed_tray_a1": {"slot": 6, "xyz": [0, 0, 0]}
-  },
-  "zones": {
-    "1": {"x": [2160, 2630], "y": [700, 1250]}
   }
 }

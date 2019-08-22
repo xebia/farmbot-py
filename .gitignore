@@ -3,3 +3,4 @@ config.json
 .idea
 venv
 __pycache__
+/farmbot_pass.txt

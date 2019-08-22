@@ -82,6 +82,9 @@ class FarmBotConfiguration(object):
     def tool_bay_clearance(self):
         return self.cfg[TOOL_BAY_CLEARANCE]
 
+    def peripheral_id(self, peripheral):
+        return self.cfg['peripherals'][peripheral.value]
+
     def location_of(self, item: ToolBay):
         if isinstance(item, Enum):
             item = item.value

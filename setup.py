@@ -9,5 +9,5 @@ setup(
     license='',
     author='Serge Beaumont',
     author_email='',
-    description='Client for FarmBot via MQTT', install_requires=['paho-mqtt', 'requests']
+    description='Client for FarmBot via MQTT', install_requires=['paho-mqtt']
 )

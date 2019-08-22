@@ -1,5 +1,5 @@
 import json
-import requests
+from urllib.request import Request, urlopen
 from farmbot.config import FarmBotConfiguration
 from pprint import pprint
 from farmbot.web.model import Sensor
@@ -13,13 +13,17 @@ class WebAPI(object):
         return {'Authorization': f'access_token {self.cfg.token}'}
 
     def _get(self, request_type):
-        result = requests.get(f"https://my.farm.bot/api/{request_type}", headers=self._headers())
-        return json.loads(result.text)
+        req = Request(f"https://my.farm.bot/api/{request_type}",
+                      headers=self._headers())
+        with urlopen(req) as resp:
+            return json.loads(resp.read().decode("utf-8"))
 
     def _post(self, request_type, post_data):
-        result = requests.post(f"https://my.farm.bot/api/{request_type}",
-                                   data=json.dumps(post_data), headers=self._headers())
-        return json.loads(result.text)
+        req = Request(f"https://my.farm.bot/api/{request_type}",
+                      data=json.dumps(post_data).encode('UTF-8'),
+                      headers=self._headers())
+        with urlopen(req) as resp:
+            return json.loads(resp.read().decode("utf-8"))
 
     @property
     def plants(self):

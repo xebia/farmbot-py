@@ -1,7 +1,5 @@
 {
   "log_level": "DEBUG",
-  "user_email": "",
-  "user_password": "",
   "broker_url": "clever-octopus.rmq.cloudamqp.com",
   "port": 1883,
   "keepalive": 60,
